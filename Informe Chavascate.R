@@ -1,6 +1,6 @@
-R.home()
+R.home() #chequeo que esté trabajando en conda
 
-
+# Importo la tabla a través de import dataset
 
 # Al final instalé los paquetes via conda
 library(tidyverse)# Manipulación y visualización de datos (incluye ggplot2, dplyr, readr, etc.)
@@ -23,8 +23,7 @@ install.packages("ggplot2")
 library(ggplot2)
 library("factoextra")   # Visualización de resultados de análisis multivariados (PCA, clustering, etc.)
 library("reshape2")     # Reorganización de datos (aunque puede usarse `pivot_longer` de `tidyverse` en su lugar)
-install.packages("readxl")
-library(readxl)
+
 
 # Leer los datos, importo dataset
 
