@@ -23,9 +23,21 @@ install.packages("ggplot2")
 library(ggplot2)
 library("factoextra")   # Visualización de resultados de análisis multivariados (PCA, clustering, etc.)
 library("reshape2")     # Reorganización de datos (aunque puede usarse `pivot_longer` de `tidyverse` en su lugar)
+library(dplyr)
 
 
 # Leer los datos, importo dataset
+
+
+# 1) Filtrar para quedarnos sólo con los sitios que nos interesan
+df <- df %>%
+  filter(sitio != "otro")
+
+# 3) (Opcional) Resetear niveles del factor para que no quede "otro" en las leyendas
+df$sitio <- droplevels(df$sitio)
+
+# A partir de aquí, todos tus plots y análisis ya no verán el sitio "otro"  
+
 
 # Procesamiento de fechas (ajustar nombre si fuera distinto)
 df$fecha <- as.Date(df$fecha, format="%Y-%m-%d")
@@ -36,6 +48,14 @@ df$habitat_calidad_prom <- rowMeans(df[, grep("^app[1-5]$", names(df))], na.rm =
 # ---------------------------
 # 1. Variación temporal y espacial de parámetros
 # ---------------------------
+
+# Primero ordeno los sitios de aguas arriba a abajo
+unique(df$sitio) # chequeo los nombres de los sitios
+df$sitio <- factor(df$sitio,
+                   levels = c("cand", "vsf", "pca", "pao", "camp"),
+                   exclude = "otro")  # opcionalmente sacás “otro” de los niveles
+# los ordeno como quiero 
+
 
 # Variables físico-químicas (ajustar a tus nombres exactos si son distintos)
 variables_fisicoquimicas <- c("cond", "pH", "o2", "po4", "no3", "no2", "temp", "durcar", "durtot", "cl", "cau")
@@ -70,11 +90,27 @@ vars_pca <- df %>%
   select(all_of(variables_fisicoquimicas), habitat_calidad_prom) %>%
   drop_na()
 
+# Calcula la varianza de cada variable en vars_pca
+variancias <- sapply(vars_pca, function(x) var(x, na.rm = TRUE))
+print(variancias) # no puedo tener variables con varianza 0
+
+# Identifica columnas de varianza cero
+cols_constantes <- variancias == 0
+
+# Ver nombres de esas columnas
+names(vars_pca)[cols_constantes]
+## p. ej.: "ph" "caudal"
+
+# Crea un nuevo data.frame sin esas columnas
+vars_pca_ok <- vars_pca[, !cols_constantes]
+
+
 # Escalar variables
-pca_res <- prcomp(vars_pca, scale. = TRUE)
+pca_res <- prcomp(vars_pca_ok, scale. = TRUE)
+summary(pca_res)
 
 # Visualizar PCA
-fviz_pca_biplot(pca_res, label = "var", habillage = df$sitio[complete.cases(vars_pca)],
+fviz_pca_biplot(pca_res, label = "var", habillage = df$sitio[complete.cases(vars_pca_ok)],
                 addEllipses = TRUE, ellipse.level = 0.95,
                 title = "PCA de variables ambientales")
 
