@@ -33,6 +33,9 @@ library(dplyr)
 df <- df %>%
   filter(sitio != "otro")
 
+# 2) Paso las variables a factor
+df$temp
+
 # 3) (Opcional) Resetear niveles del factor para que no quede "otro" en las leyendas
 df$sitio <- droplevels(df$sitio)
 
@@ -94,7 +97,7 @@ vars_pca <- df %>%
 variancias <- sapply(vars_pca, function(x) var(x, na.rm = TRUE))
 print(variancias) # no puedo tener variables con varianza 0
 
-# Identifica columnas de varianza cero
+  # Identifica columnas de varianza cero
 cols_constantes <- variancias == 0
 
 # Ver nombres de esas columnas
