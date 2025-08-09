@@ -34,7 +34,7 @@ df <- df %>%
   filter(sitio != "otro")
 
 # 2) Paso las variables a factor
-df$temp
+#df$temp
 
 # 3) (Opcional) Resetear niveles del factor para que no quede "otro" en las leyendas
 df$sitio <- droplevels(df$sitio)
@@ -83,6 +83,69 @@ for (var in variables_fisicoquimicas) {
          y = var, x = "Fecha") -> plot
   print(plot)
 }
+
+# Por sitio y estación
+library(dplyr)
+library(ggplot2)
+library(lubridate)
+# library(forcats) # si querés ordenar factores
+
+# --- CONFIGURABLES ---
+# Si no tenés definido el vector, descomentá y ajustá:
+# variables_fisicoquimicas <- c("conductividad", "pH", "od", "fosfato")  # ej.
+
+# Orden opcional de sitios (si querés controlarlo):
+# df$sitio <- factor(df$sitio, levels = c("cand", "vsf", "pca", "pao", "camp"))
+
+# Asegurar tipo fecha
+if (!inherits(df$fecha, "Date")) {
+  df <- df %>% mutate(fecha = as.Date(fecha))
+}
+
+# Función para mapear meses a estaciones (hemisferio sur)
+estacion_sur <- function(fecha) {
+  m <- month(fecha)
+  case_when(
+    m %in% c(1, 2, 3) ~ "Verano",
+    m %in% c(4, 5, 6)  ~ "Otoño",
+    m %in% c(7, 8, 9)  ~ "Invierno",
+    TRUE               ~ "Primavera"
+  )
+}
+
+# Precalcular estación como factor ordenado
+df_est <- df %>%
+  mutate(estacion = factor(estacion_sur(fecha),
+                           levels = c("Otoño","Invierno","Primavera","Verano")))
+
+# --- BUCLE DE GRÁFICOS ---
+for (var in variables_fisicoquimicas) {
+  
+  # Resumen por sitio x estación (mediana y n)
+  resumen <- df_est %>%
+    group_by(sitio, estacion) %>%
+    summarise(
+      mediana = median(.data[[var]], na.rm = TRUE),
+      n = sum(!is.na(.data[[var]])),
+      .groups = "drop"
+    )
+  
+  p <- ggplot(resumen, aes(x = sitio, y = mediana, fill = estacion)) +
+    geom_col(position = position_dodge(width = 0.85), width = 0.8) +
+    # Etiquetas opcionales con el n de puntos por barra (sacá esta capa si no las querés)
+    #geom_text(aes(label = n),
+    #          position = position_dodge(width = 0.85),
+    #          vjust = -0.5, size = 3, show.legend = FALSE) +
+    theme_minimal() +
+    labs(
+      title = paste(var, "por sitio y estación"),
+      x = "Sitio", y = var, fill = "Estación"
+    ) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  
+  print(p)
+}
+
 
 # ---------------------------
 # 2. Análisis multivariado
