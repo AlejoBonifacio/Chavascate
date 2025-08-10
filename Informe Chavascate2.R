@@ -84,7 +84,7 @@ for (var in variables_fisicoquimicas) {
   print(plot)
 }
 
-<<<<<<< HEAD
+#<<<<<<< HEAD
 # Por sitio y estación
 library(dplyr) 
 library(ggplot2)
@@ -93,10 +93,10 @@ library(lubridate)
 
 # --- CONFIGURABLES ---
 # Si no tenés definido el vector, descomentá y ajustá:
-# variables_fisicoquimicas <- c("conductividad", "pH", "od", "fosfato")  # ej.
+variables_fisicoquimicas <- c("conductividad", "pH", "od", "fosfato")  # ej.
 
 # Orden opcional de sitios (si querés controlarlo):
-# df$sitio <- factor(df$sitio, levels = c("cand", "vsf", "pca", "pao", "camp"))
+df$sitio <- factor(df$sitio, levels = c("cand", "vsf", "pca", "pao", "camp"))
 
 # Asegurar tipo fecha
 if (!inherits(df$fecha, "Date")) {
@@ -119,11 +119,10 @@ df_est <- df %>%
   mutate(estacion = factor(estacion_sur(fecha),
                            levels = c("Otoño","Invierno","Primavera","Verano")))
 
+# Resumen por sitio x estación (mediana y n)
 # --- BUCLE DE GRÁFICOS ---
-for (var in variables_fisicoquimicas) {
-  
-  # Resumen por sitio x estación (mediana y n)
-  resumen <- df_est %>%
+for (var in variables_fisicoquimicas) {  
+    resumen <- df_est %>%
     group_by(sitio, estacion) %>%
     summarise(
       mediana = median(.data[[var]], na.rm = TRUE),
@@ -143,8 +142,9 @@ for (var in variables_fisicoquimicas) {
       x = "Sitio", y = var, fill = "Estación"
     ) +
     theme(axis.text.x = element_text(angle = 45, hjust = 1))
-=======
-# Valores por sitio y estación
+}
+p 
+  # Valores por sitio y estación
 library(dplyr)
 library(ggplot2)
 library(lubridate)
@@ -203,16 +203,10 @@ for (var in variables_fisicoquimicas) {
       axis.text.x = element_text(angle = 45, hjust = 1),
       plot.subtitle = element_blank()
     )
->>>>>>> 542bc46 (Quedaron listos los gráficos de parámetros por sitio y estación juntos y separados. Los gráficos de cond y pH ya están pegados en el informe)
-  
   print(p)
 }
+p
 
-
-<<<<<<< HEAD
-=======
-
->>>>>>> 542bc46 (Quedaron listos los gráficos de parámetros por sitio y estación juntos y separados. Los gráficos de cond y pH ya están pegados en el informe)
 # ---------------------------
 # 2. Análisis multivariado
 # ---------------------------
