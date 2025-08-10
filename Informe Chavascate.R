@@ -84,6 +84,7 @@ for (var in variables_fisicoquimicas) {
   print(plot)
 }
 
+<<<<<<< HEAD
 # Por sitio y estación
 library(dplyr)
 library(ggplot2)
@@ -142,11 +143,76 @@ for (var in variables_fisicoquimicas) {
       x = "Sitio", y = var, fill = "Estación"
     ) +
     theme(axis.text.x = element_text(angle = 45, hjust = 1))
+=======
+# Valores por sitio y estación
+library(dplyr)
+library(ggplot2)
+library(lubridate)
+
+# --- 1) Función auxiliar: estación (Hemisferio Sur) ---
+estacion_sur <- function(fecha) {
+  est <- case_when(
+    month(fecha) %in% c(1, 2, 3) ~ "Verano",
+    month(fecha) %in% c(4, 5, 6)  ~ "Otoño",
+    month(fecha) %in% c(7, 8, 9)  ~ "Invierno",
+    month(fecha) %in% c(10, 11, 12)  ~ "Primavera",
+    TRUE ~ NA_character_
+  )
+  factor(est, levels = c("Otoño", "Invierno", "Primavera", "Verano"))
+}
+
+# --- 2) Etiquetas de eje Y por variable ---
+y_labels <- c(
+  cond = "Conductividad (uS/cm)",
+  o2   = "Oxígeno disuelto (mg/L)",
+  po4  = "Fosfatos (mg/L)",
+  temp = "Temperatura del agua (°C)",
+  cau  = "Caudal (m3/s)"
+)
+
+# --- 3) Loop de gráficos ---
+for (var in variables_fisicoquimicas) {
+  
+  df_plot <- df %>%
+    mutate(estacion = estacion_sur(fecha))
+  
+  # Filtrado especial para PO4
+  if (var == "po4") {
+    df_plot <- df_plot %>%
+      filter(!estacion %in% c("Otoño", "Invierno"))
+  }
+  
+  # Agrupar por sitio y estación
+  df_sum <- df_plot %>%
+    group_by(sitio, estacion) %>%
+    summarise(valor = mean(.data[[var]], na.rm = TRUE), .groups = "drop")
+  
+  # Etiqueta del eje Y segura
+  ylab_txt <- if (var %in% names(y_labels)) y_labels[[var]] else var
+  
+  # Gráfico
+  p <- ggplot(df_sum, aes(x = sitio, y = valor, fill = estacion)) +
+    geom_col(position = position_dodge(width = 0.8), width = 0.7) +
+    theme_minimal() +
+    labs(
+      title = paste("Valores de", ylab_txt, "por sitio y estación"),
+      x = "Sitio",
+      y = ylab_txt
+    ) +
+    theme(
+      axis.text.x = element_text(angle = 45, hjust = 1),
+      plot.subtitle = element_blank()
+    )
+>>>>>>> 542bc46 (Quedaron listos los gráficos de parámetros por sitio y estación juntos y separados. Los gráficos de cond y pH ya están pegados en el informe)
   
   print(p)
 }
 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 542bc46 (Quedaron listos los gráficos de parámetros por sitio y estación juntos y separados. Los gráficos de cond y pH ya están pegados en el informe)
 # ---------------------------
 # 2. Análisis multivariado
 # ---------------------------
