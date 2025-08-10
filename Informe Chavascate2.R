@@ -86,7 +86,7 @@ for (var in variables_fisicoquimicas) {
 
 <<<<<<< HEAD
 # Por sitio y estación
-library(dplyr)
+library(dplyr) 
 library(ggplot2)
 library(lubridate)
 # library(forcats) # si querés ordenar factores
