@@ -447,7 +447,7 @@ df_agregado <- df_agregado %>% mutate(Sitio = as.character(Sitio))
 # carpeta de salida
 dir.create("graficos_sitio", showWarnings = FALSE)
 
-# (opcional) ver cuántos sitios hay
+# (opcional) ver cuántos sitios hay 
 print(table(df_agregado$Sitio))
 
 # guardar un PNG por sitio con nombres únicos y sin leyenda
