@@ -366,19 +366,23 @@ df_agregado <- df_agregado %>%
     Problematica = factor(
       Problematica,
       levels = c(
+        "Agua – Transparencia","Agua - Transparencia",
+        "Agua – Olor","Agua - Olor",
+        "Agua – Aceites","Agua - Aceites",
+        "Hidrología",
+        "Basura",
         "Uso del suelo",
         "Vegetación de la ribera",
         "Vegetación acuática",
-        "Agua – Transparencia","Agua - Transparencia",
-        "Agua – Olor","Agua - Olor",
-        "Basura",
-        "Hidrología",
-        "Agua – Aceites","Agua - Aceites",
         "Vegetación en las márgenes","Vegetación en las margenes",
         "Exóticas – Acacia","Exóticas - Acacia",
         "Exóticas – Ligustro","Exóticas - Ligustro"
       ) %>% (\(x) x[x %in% df_agregado$Problematica])()
-    )
+    ),
+    ## <-- agregá ESTA línea para ordenar los paneles:
+    Sitio = factor(Sitio, levels = c("Candonga","Vado San Francisco",
+                                     "Puente Cerro Azul","Puenta Agua de Oro",
+                                     "Camping El Algarrobo"))
   )
 
 colores_custom <- c(
@@ -392,10 +396,17 @@ colores_custom <- c(
 # ========= 6) Gráfico facetado =========
 p_facet <- ggplot(df_agregado, aes(x = Problematica, y = Valor, fill = color_cat)) +
   geom_col(width = 0.8) +
-  facet_wrap(~ Sitio, ncol = 3) +
+  facet_wrap(~ Sitio, ncol = 1) +
   coord_cartesian(ylim = c(0, 10)) +
-  scale_fill_manual(values = colores_custom, guide = "none") +
-  labs(x = NULL, y = "Promedio (0–10)", title = "Problemáticas por sitio") +
+  scale_fill_manual(
+    values = colores_custom,
+    breaks = c("azul","verde","amarillo","naranja","rojo"),
+    labels = c("Muy bueno","Bueno","Regular","Malo","Muy malo"),
+    name   = NULL
+  ) +
+  guides(fill = guide_legend(nrow = 5, byrow = TRUE)) +
+  theme(legend.position = "bottom") +
+  labs(x = NULL, y = "Promedio de calidad ambiental") +
   theme_minimal(base_size = 12) +
   theme(
     axis.text.x = element_text(angle = 45, hjust = 1),
@@ -403,6 +414,8 @@ p_facet <- ggplot(df_agregado, aes(x = Problematica, y = Valor, fill = color_cat
   )
 
 print(p_facet)
+
+unique(df_agregado$Sitio)
 
 library(stringr)
 
